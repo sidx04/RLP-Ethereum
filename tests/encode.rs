@@ -14,7 +14,7 @@ mod tests {
         let rlp = RLP::new(0x80u8, None);
         assert_eq!(
             rlp.encode(),
-            vec![Entry::Integer(129), Entry::Integer(0x80)]
+            vec![Entry::Integer(0x81), Entry::Integer(0x80)]
         );
     }
 
@@ -176,7 +176,7 @@ mod tests {
 
     #[test]
     fn test_empty_vector() {
-        let data: Vec<u8> = vec![];
+        let data: Vec<&str> = vec![];
         let rlp = RLP::new(data, None);
         let encoded = rlp.encode();
         assert_eq!(encoded, vec![Entry::Integer(192)]);

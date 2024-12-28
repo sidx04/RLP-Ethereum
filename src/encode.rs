@@ -1,7 +1,7 @@
 use crate::utils::{check_character, to_binary_bytes};
 use crate::{Entry, RLPEncodable};
 
-// Single byte 0x00..0x7f
+// Single byte 0x00..0x7f -> if < 128 then encoding is itself, otherwise [0x80 + length, data]
 impl RLPEncodable for u8 {
     fn encode(&self) -> Vec<Entry> {
         if *self < 128 {
@@ -14,6 +14,7 @@ impl RLPEncodable for u8 {
 
 // Char (encoded as its UTF-8 representation)
 // Essentially Char = 1 byte string
+// char -> String -> &str
 impl RLPEncodable for char {
     fn encode(&self) -> Vec<Entry> {
         self.to_string().encode()
@@ -27,7 +28,7 @@ impl RLPEncodable for &str {
 
         // Empty string
         if self.is_empty() {
-            encoded.push(Entry::Integer(128)); // encoded as 0x80
+            encoded.push(Entry::Integer(0x80)); // encoded as 0x80 or 128
             return encoded;
         }
 
@@ -61,7 +62,7 @@ impl RLPEncodable for &str {
     }
 }
 
-// Owned String
+// Owned String, goes to `&str` implementation
 impl RLPEncodable for String {
     fn encode(&self) -> Vec<Entry> {
         self.as_str().encode()

@@ -1,5 +1,6 @@
 pub mod decode;
 pub mod encode;
+pub mod errors;
 pub mod utils;
 
 use std::fmt::Debug;
@@ -16,11 +17,22 @@ pub enum Entry {
     Char(char),
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub enum RLPDecodingError {
+    InvalidData,
+    UnexpectedEOF,
+    UnsupportedType,
+}
+
 pub trait RLPEncodable {
     fn encode(&self) -> Vec<Entry>;
 }
 
-impl<T: Debug + RLPEncodable> RLP<T> {
+pub trait RLPDecodable: Sized {
+    fn decode(input: Vec<Entry>) -> Result<Self, RLPDecodingError>;
+}
+
+impl<T: Debug + RLPEncodable + RLPDecodable> RLP<T> {
     /// Creates a new RLP instance.
     ///
     /// ## Arguments
@@ -75,5 +87,10 @@ impl<T: Debug + RLPEncodable> RLP<T> {
             return Vec::new();
         }
         self.data.encode()
+    }
+
+    pub fn decode(input: Vec<Entry>) -> Result<T, RLPDecodingError> {
+        let data: T = T::decode(input)?;
+        Ok(data)
     }
 }
