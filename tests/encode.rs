@@ -179,7 +179,7 @@ mod tests {
         let data: Vec<&str> = vec![];
         let rlp = RLP::new(data, None);
         let encoded = rlp.encode();
-        assert_eq!(encoded, vec![Entry::Integer(192)]);
+        assert_eq!(encoded, vec![Entry::Integer(0xc0)]);
     }
 
     #[test]
@@ -197,6 +197,40 @@ mod tests {
                 Entry::Integer(0xc0),
                 Entry::Integer(0xc1),
                 Entry::Integer(0xc0)
+            ]
+        );
+
+        let data: Vec<Vec<&str>> = vec![vec![]];
+        let rlp = RLP::new(data, None);
+        assert_eq!(
+            rlp.encode(),
+            vec![Entry::Integer(0xc1), Entry::Integer(0xc0)]
+        );
+
+        let data: Vec<Vec<char>> = vec![vec!['a']];
+        let rlp = RLP::new(data, None);
+        assert_eq!(
+            rlp.encode(),
+            vec![
+                Entry::Integer(0xc3),
+                Entry::Integer(0xc2),
+                Entry::Integer(0x81),
+                Entry::Char('a')
+            ]
+        );
+
+        let data: Vec<Vec<u8>> = vec![vec![1, 2], vec![3, 4]];
+        let rlp = RLP::new(data, None);
+        assert_eq!(
+            rlp.encode(),
+            vec![
+                Entry::Integer(0xc6),
+                Entry::Integer(0xc2),
+                Entry::Integer(0x01),
+                Entry::Integer(0x02),
+                Entry::Integer(0xc2),
+                Entry::Integer(0x03),
+                Entry::Integer(0x04),
             ]
         );
     }

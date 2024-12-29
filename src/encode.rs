@@ -72,35 +72,43 @@ impl RLPEncodable for String {
 // Vector (list) of RLP encodable items
 impl<T: RLPEncodable> RLPEncodable for Vec<T> {
     fn encode(&self) -> Vec<Entry> {
+        // Handle empty vectors
+        if self.is_empty() {
+            return vec![Entry::Integer(0xc0)];
+        }
+
         let mut encoded = Vec::new();
         let mut contents = Vec::new();
         let mut total_len = 0;
 
-        // First encode all elements
+        // Encode each item in the vector
         for item in self {
             let mut entries = item.encode();
-            total_len += entries.len();
-            contents.append(&mut entries);
+            total_len += entries.len(); // Update the total length
+            contents.append(&mut entries); // Append encoded entries to contents
         }
 
-        // List longer than 55 bytes
+        println!("Contents: {:?}", contents);
+
+        // Determine prefix based on total length
         if total_len > 55 {
+            // Long list: Add length prefix with length of length
             let length_bytes = to_binary_bytes(total_len as u64);
-            encoded.push(Entry::Integer(
-                u8::try_from(length_bytes.len()).unwrap() + 247,
-            ));
+            encoded.push(Entry::Integer((length_bytes.len() as u8) + 0xf7));
             for b in length_bytes {
                 encoded.push(Entry::Integer(b));
             }
         } else {
-            // List up to 55 bytes
-            encoded.push(Entry::Integer(total_len as u8 + 192));
+            // Short list: Add total length directly
+            encoded.push(Entry::Integer((total_len as u8) + 0xc0));
         }
 
-        // Add encoded contents
+        // Append contents to the encoded list
         encoded.append(&mut contents);
 
-        println!("{encoded:?}");
+        // Print encoded result for debugging (optional)
+        println!("Encoded: {encoded:?}");
+
         encoded
     }
 }
