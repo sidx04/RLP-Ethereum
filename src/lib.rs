@@ -11,7 +11,7 @@ pub struct RLP<T: Debug + RLPEncodable> {
     encoded: bool,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Entry {
     Integer(u8),
     Char(char),
