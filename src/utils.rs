@@ -1,3 +1,5 @@
+use crate::{Entry, RLPDecodingError};
+
 pub fn to_binary_bytes(num: u64) -> Vec<u8> {
     let mut bytes = vec![];
     let mut value = num;
@@ -13,4 +15,18 @@ pub fn to_binary_bytes(num: u64) -> Vec<u8> {
 pub fn check_character(num: &u8) -> bool {
     let num = *num;
     (num <= 31) || (num >= 127 && num < 160)
+}
+
+pub fn decode_chars_to_string(
+    input: &Vec<Entry>,
+    hops: usize,
+    res: &mut String,
+) -> Result<String, RLPDecodingError> {
+    for entry in input[hops..input.len()].into_iter() {
+        match entry {
+            Entry::Char(item) => res.push(*item),
+            _ => continue,
+        }
+    }
+    Ok(res.to_owned())
 }
