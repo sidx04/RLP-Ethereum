@@ -10,12 +10,13 @@ mod tests {
         // Single byte in range [0x00, 0x7f]
         let rlp = RLP::new(0x7fu8, None);
         let encoded: Vec<Entry> = rlp.encode();
-        assert_eq!(RLP::decode(encoded), Ok(0x7fu8));
+        println!("{:?}", encoded);
+        assert_eq!(RLP::decode(encoded), Ok('\u{7f}'));
 
         // Single byte > 0x7f
         let rlp = RLP::new(0x84u8, None);
         let encoded: Vec<Entry> = rlp.encode();
-        assert_eq!(RLP::decode(encoded), Ok(0x84u8));
+        assert_eq!(RLP::decode(encoded), Ok('\u{84}'));
     }
 
     #[test]

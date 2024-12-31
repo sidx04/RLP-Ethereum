@@ -9,7 +9,7 @@ impl RLPDecodable for u8 {
                 // Single byte in range [0x00, 0x7f]
                 let data = &input[0];
                 match data {
-                    Entry::Integer(d) => Ok(*d),
+                    Entry::Char(item) => Ok(*item as u8),
                     _ => Err(RLPDecodingError::InvalidData),
                 }
             }
@@ -29,18 +29,16 @@ impl RLPDecodable for u8 {
 
 impl RLPDecodable for char {
     fn decode(input: Vec<Entry>) -> Result<Self, RLPDecodingError> {
-        let prefix = &input[0];
-
-        match prefix {
-            Entry::Integer(_) => {
-                let entry = &input[1];
-                match entry {
-                    Entry::Char(item) => Ok(*item),
-                    _ => Err(RLPDecodingError::InvalidData),
-                }
+        for entry in input.into_iter() {
+            match entry {
+                // return character as it is
+                Entry::Char(character) => return Ok(character),
+                // we dont care about other types, even if an integer entry is
+                // present to specify length, it can be ignored
+                _ => continue,
             }
-            _ => Err(RLPDecodingError::InvalidData),
         }
+        Err(RLPDecodingError::InvalidData)
     }
 }
 
@@ -88,6 +86,24 @@ where
     T: RLPDecodable,
 {
     fn decode(input: Vec<Entry>) -> Result<Self, RLPDecodingError> {
+        // let t_length = &input[0];
+
+        // match t_length {
+        //     Entry::Integer(len) => {
+        //         // three cases: vector, character, or integer
+        //         for iter in input[0..*len as usize].into_iter() {
+        //             match iter {
+        //                 Entry::Integer(entry) => {
+        //                     if entry >
+        //                 }
+        //                 Entry::Char(entry) => {}
+        //                 _ => continue,
+        //             }
+        //         }
+        //         Ok(vec![])
+        //     }
+        //     _ => Err(RLPDecodingError::InvalidData),
+        // }
         todo!()
     }
 }

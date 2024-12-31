@@ -8,13 +8,13 @@ mod tests {
     fn test_single_byte() {
         // Single byte in range [0x00, 0x7f]
         let rlp = RLP::new(0x7fu8, None);
-        assert_eq!(rlp.encode(), vec![Entry::Integer(0x7f)]);
+        assert_eq!(rlp.encode(), vec![Entry::Char('\u{7f}')]);
 
         // Single byte > 0x7f
         let rlp = RLP::new(0x80u8, None);
         assert_eq!(
             rlp.encode(),
-            vec![Entry::Integer(0x81), Entry::Integer(0x80)]
+            vec![Entry::Integer(0x81), Entry::Char('\u{80}')]
         );
     }
 
@@ -171,6 +171,7 @@ mod tests {
 ], None);
         let encoded = rlp.encode();
         assert_eq!(encoded[0], Entry::Integer(249));
+        // assert_eq!(encoded, vec![Entry::Integer(249)]);
     }
 
     #[test]
@@ -225,11 +226,11 @@ mod tests {
             vec![
                 Entry::Integer(0xc6),
                 Entry::Integer(0xc2),
-                Entry::Integer(0x01),
-                Entry::Integer(0x02),
+                Entry::Char('\u{1}'),
+                Entry::Char('\u{2}'),
                 Entry::Integer(0xc2),
-                Entry::Integer(0x03),
-                Entry::Integer(0x04),
+                Entry::Char('\u{3}'),
+                Entry::Char('\u{4}'),
             ]
         );
     }

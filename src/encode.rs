@@ -5,9 +5,9 @@ use crate::{Entry, RLPEncodable};
 impl RLPEncodable for u8 {
     fn encode(&self) -> Vec<Entry> {
         if *self < 128 {
-            vec![Entry::Integer(*self)]
+            vec![Entry::Char(char::from(*self))]
         } else {
-            vec![Entry::Integer(129), Entry::Integer(*self)]
+            vec![Entry::Integer(129), Entry::Char(char::from(*self))]
         }
     }
 }
