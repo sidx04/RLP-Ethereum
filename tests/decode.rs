@@ -71,4 +71,11 @@ mod tests {
             Ok("012345678910111213141516171819202122232425262728293031323334353637383940")
         );
     }
+
+    #[test]
+    fn test_vec() {
+        let rlp = RLP::new(vec!["cat", "dog"], None);
+        let encoded = rlp.encode();
+        assert_eq!(RLP::decode(encoded), Ok(vec!["cat", "dog"]));
+    }
 }

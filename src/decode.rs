@@ -85,25 +85,7 @@ impl<T> RLPDecodable for Vec<T>
 where
     T: RLPDecodable,
 {
-    fn decode(input: Vec<Entry>) -> Result<Self, RLPDecodingError> {
-        // let t_length = &input[0];
-
-        // match t_length {
-        //     Entry::Integer(len) => {
-        //         // three cases: vector, character, or integer
-        //         for iter in input[0..*len as usize].into_iter() {
-        //             match iter {
-        //                 Entry::Integer(entry) => {
-        //                     if entry >
-        //                 }
-        //                 Entry::Char(entry) => {}
-        //                 _ => continue,
-        //             }
-        //         }
-        //         Ok(vec![])
-        //     }
-        //     _ => Err(RLPDecodingError::InvalidData),
-        // }
+    fn decode(_input: Vec<Entry>) -> Result<Self, RLPDecodingError> {
         todo!()
     }
 }
