@@ -10,7 +10,6 @@ mod tests {
         // Single byte in range [0x00, 0x7f]
         let rlp = RLP::new(0x7fu8, None);
         let encoded: Vec<Entry> = rlp.encode();
-        println!("{:?}", encoded);
         assert_eq!(RLP::decode(encoded), Ok('\u{7f}'));
 
         // Single byte > 0x7f
@@ -77,5 +76,20 @@ mod tests {
         let rlp = RLP::new(vec!["cat", "dog"], None);
         let encoded = rlp.encode();
         assert_eq!(RLP::decode(encoded), Ok(vec!["cat", "dog"]));
+
+        // let rlp = RLP::new(vec![1, 2], None);
+        // let encoded = rlp.encode();
+        // assert_eq!(RLP::decode(encoded), Ok(vec![1, 2]));
+
+        // let rlp = RLP::new(vec![vec![1, 2], vec![3, 4]], None);
+        // let encoded = rlp.encode();
+        // assert_eq!(RLP::decode(encoded), Ok(vec![vec![1, 2], vec![3, 4]]));
+
+        // let rlp: RLP<Vec<Vec<Vec<Vec<&str>>>>> =
+        //     RLP::new(vec![vec![], vec![vec![]], vec![vec![], vec![vec![]]]], None);
+        // let encoded = rlp.encode();
+        // let output: Vec<Vec<Vec<Vec<&str>>>> =
+        //     vec![vec![], vec![vec![]], vec![vec![], vec![vec![]]]];
+        // assert_eq!(RLP::decode(encoded), Ok(output));
     }
 }

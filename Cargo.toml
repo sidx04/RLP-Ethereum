@@ -5,3 +5,6 @@ author = "sidx04"
 edition = "2021"
 
 [dependencies]
+
+[lib]
+doctest = false

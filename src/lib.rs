@@ -15,7 +15,7 @@ pub struct RLP<T: Debug + RLPEncodable> {
 pub enum Entry {
     Integer(u8),
     Char(char),
-    List(Vec<Entry>),
+    // List(Vec<Entry>),
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -29,7 +29,7 @@ pub trait RLPEncodable {
     fn encode(&self) -> Vec<Entry>;
 }
 
-pub trait RLPDecodable: Sized {
+pub trait RLPDecodable: Sized + Debug {
     fn decode(input: Vec<Entry>) -> Result<Self, RLPDecodingError>;
 }
 
@@ -81,7 +81,7 @@ impl<T: Debug + RLPEncodable + RLPDecodable> RLP<T> {
     /// assert_eq!(encoded[3], Entry::Char('t'));
     ///
     /// let rlp = RLP::new(0x7fu8, None);
-    /// assert_eq!(rlp.encode(), vec![Entry::Integer(0x7f)]);
+    /// assert_eq!(rlp.encode(), vec![Entry::Char('\u{7f}')]);
     /// ```
     pub fn encode(&self) -> Vec<Entry> {
         if self.encoded == Option::is_some(&Some(true)) {

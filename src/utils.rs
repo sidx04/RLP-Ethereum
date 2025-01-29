@@ -30,3 +30,87 @@ pub fn decode_chars_to_string(
     }
     Ok(res.to_owned())
 }
+
+pub fn extract_item_entries(
+    input: &[Entry],
+    start_index: usize,
+) -> Result<Vec<Entry>, RLPDecodingError> {
+    if start_index >= input.len() {
+        return Err(RLPDecodingError::InvalidData);
+    }
+
+    let prefix = &input[start_index];
+
+    match prefix {
+        Entry::Integer(prefix_value) => {
+            if *prefix_value < 0x80 {
+                // Single byte
+                Ok(vec![Entry::Integer(*prefix_value)])
+            } else if *prefix_value <= 0xb7 {
+                // Short string
+                let length = (*prefix_value - 0x80) as usize;
+                if start_index + length >= input.len() {
+                    return Err(RLPDecodingError::InvalidData);
+                }
+                println!(
+                    "Item Entries (Short String) {:?}",
+                    input[start_index..=start_index + length].to_vec()
+                );
+                Ok(input[start_index..=start_index + length].to_vec())
+            } else if *prefix_value <= 0xbf {
+                // Long string
+                let length_of_length = (*prefix_value - 0xb7) as usize;
+                if start_index + length_of_length >= input.len() {
+                    return Err(RLPDecodingError::InvalidData);
+                }
+
+                let mut length = 0;
+                for i in 0..length_of_length {
+                    if let Entry::Integer(byte) = input[start_index + 1 + i] {
+                        length = (length << 8) + byte as usize;
+                    } else {
+                        return Err(RLPDecodingError::InvalidData);
+                    }
+                }
+
+                if start_index + length_of_length + length >= input.len() {
+                    return Err(RLPDecodingError::InvalidData);
+                }
+
+                Ok(input[start_index..=start_index + length_of_length + length].to_vec())
+            } else if *prefix_value <= 0xf7 {
+                // Short list
+                let length = (*prefix_value - 0xc0) as usize;
+                if start_index + length >= input.len() {
+                    return Err(RLPDecodingError::InvalidData);
+                }
+                Ok(input[start_index..=start_index + length].to_vec())
+            } else {
+                // Long list
+                let length_of_length = (*prefix_value - 0xf7) as usize;
+                if start_index + length_of_length >= input.len() {
+                    return Err(RLPDecodingError::InvalidData);
+                }
+
+                let mut length = 0;
+                for i in 0..length_of_length {
+                    if let Entry::Integer(byte) = input[start_index + 1 + i] {
+                        length = (length << 8) + byte as usize;
+                    } else {
+                        return Err(RLPDecodingError::InvalidData);
+                    }
+                }
+
+                if start_index + length_of_length + length >= input.len() {
+                    return Err(RLPDecodingError::InvalidData);
+                }
+
+                Ok(input[start_index..=start_index + length_of_length + length].to_vec())
+            }
+        }
+        Entry::Char(_) => {
+            // Single character
+            Ok(vec![input[start_index].clone()])
+        }
+    }
+}

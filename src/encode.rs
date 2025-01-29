@@ -88,7 +88,7 @@ impl<T: RLPEncodable> RLPEncodable for Vec<T> {
             contents.append(&mut entries); // Append encoded entries to contents
         }
 
-        println!("Contents: {:?}", contents);
+        // println!("Contents: {:?}", contents);
 
         // Determine prefix based on total length
         if total_len > 55 {
@@ -106,8 +106,7 @@ impl<T: RLPEncodable> RLPEncodable for Vec<T> {
         // Append contents to the encoded list
         encoded.append(&mut contents);
 
-        // Print encoded result for debugging (optional)
-        println!("Encoded: {encoded:?}");
+        // println!("Encoded: {encoded:?}");
 
         encoded
     }

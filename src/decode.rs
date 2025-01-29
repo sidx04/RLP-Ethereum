@@ -1,4 +1,7 @@
-use crate::{utils::decode_chars_to_string, Entry, RLPDecodable, RLPDecodingError};
+use crate::{
+    utils::{decode_chars_to_string, extract_item_entries},
+    Entry, RLPDecodable, RLPDecodingError,
+};
 
 impl RLPDecodable for u8 {
     fn decode(input: Vec<Entry>) -> Result<Self, RLPDecodingError> {
@@ -56,8 +59,6 @@ impl RLPDecodable for String {
     fn decode(input: Vec<Entry>) -> Result<Self, RLPDecodingError> {
         let prefix = &input[0];
 
-        println!("{:?}", input);
-
         let mut res = String::new();
 
         // emptry string
@@ -85,7 +86,60 @@ impl<T> RLPDecodable for Vec<T>
 where
     T: RLPDecodable,
 {
-    fn decode(_input: Vec<Entry>) -> Result<Self, RLPDecodingError> {
-        todo!()
+    fn decode(input: Vec<Entry>) -> Result<Self, RLPDecodingError> {
+        if input.is_empty() {
+            return Err(RLPDecodingError::InvalidData);
+        }
+
+        let prefix = &input[0];
+
+        match prefix {
+            Entry::Integer(prefix_value) => {
+                if *prefix_value == 0xc0 {
+                    // Empty list
+                    return Ok(Vec::new());
+                }
+
+                let _ = if *prefix_value <= 0xf7 {
+                    // Short list -> prefix directly indicates the total length of the list
+                    (*prefix_value - 0xc0) as usize
+                } else {
+                    // Long list -> prefix indicates the length of the length
+                    // followed by the length itself
+                    let length_of_length = (*prefix_value - 0xf7) as usize;
+                    if input.len() < length_of_length + 1 {
+                        return Err(RLPDecodingError::InvalidData);
+                    }
+
+                    let mut length = 0;
+                    for i in 0..length_of_length {
+                        if let Entry::Integer(byte) = input[i + 1] {
+                            length = (length << 8) + byte as usize;
+                        } else {
+                            return Err(RLPDecodingError::InvalidData);
+                        }
+                    }
+
+                    length
+                };
+
+                let mut result = Vec::new();
+                let mut current_index = if *prefix_value <= 0xf7 {
+                    1
+                } else {
+                    1 + (prefix_value - 0xf7) as usize
+                };
+
+                while current_index < input.len() {
+                    let item_entries = extract_item_entries(&input, current_index)?;
+                    let decoded_item = T::decode(item_entries.clone())?;
+                    result.push(decoded_item);
+                    current_index += item_entries.len();
+                }
+
+                Ok(result)
+            }
+            _ => Err(RLPDecodingError::InvalidData),
+        }
     }
 }
